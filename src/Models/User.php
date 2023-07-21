@@ -30,8 +30,6 @@ class User
   $userLastName
 )
   {
-    $foundUser = $this->getByName($userName);
-    if (!$foundUser) {
       $queryCreate = "INSERT INTO users (user_username, user_email, user_password_hash, user_access_level_code, user_firstname, user_lastname, user_fullname)
         VALUES (:username, :usermail, :passwordhash, :useraccess, :firstname, :lastname, :fullname)";
         $filteredFirstName = $this->sanitizeString($userFirstName);
@@ -46,20 +44,8 @@ class User
         $statement->bindValue(':firstname', $filteredFirstName);
         $statement->bindValue(':lastname', $filteredLastName);
         $statement->bindValue(':fullname', $fullName);
-    
         $statement->execute();
-        session_start();
-        $_SESSION['tempUserName'] = $userName;
-        $_SESSION['tempUserPassword'] = $userPassword;
-        header('Location: /authenticate');
-    } else {
-      session_start();
-      $message = "<span>Nome de usuário indisponível.</span>";
-      $expTime = time() + 1;
-      setcookie('errorMessage', $message, $expTime);
-      header('Location: /register');
     }
-  }
 
 public function getByName($userName)
 {
