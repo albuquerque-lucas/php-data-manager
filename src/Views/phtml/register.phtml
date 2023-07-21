@@ -1,9 +1,10 @@
 <?php require __DIR__ . '/components/header.phtml';?>
 
 <?php
-    if (isset($_COOKIE['errorMessage'])) {
-        $message = $_COOKIE['errorMessage'];
-    
+    if (isset($_SESSION['errorMessage'])) {
+        $message = $_SESSION['errorMessage'];
+        unset($_SESSION['errorMessage']);
+        unset($_SESSION['messageType']);
     ?>
         <div class="alert alert-danger text-center m-3 mx-auto w-50" role="alert">
             <strong>Erro: </strong><?php echo $message; ?>

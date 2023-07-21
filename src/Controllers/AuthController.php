@@ -19,44 +19,66 @@ class AuthController
     }
 
     public function createUserRequest()
-    {
-
-        $userName = filter_input(INPUT_POST,'username', FILTER_DEFAULT);
-        $userMail = filter_input(INPUT_POST,'email', FILTER_DEFAULT);
-        $userPassword = filter_input(INPUT_POST,'password', FILTER_DEFAULT);
+{
+    session_start();
+    try {
+        $userName = filter_input(INPUT_POST, 'username', FILTER_DEFAULT);
+        $userMail = filter_input(INPUT_POST, 'email', FILTER_DEFAULT);
+        $userPassword = filter_input(INPUT_POST, 'password', FILTER_DEFAULT);
         $userFirstName = filter_input(INPUT_POST, 'firstname', FILTER_DEFAULT);
         $userLastName = filter_input(INPUT_POST, 'lastname', FILTER_DEFAULT);
         $passwordHash = password_hash($userPassword, PASSWORD_ARGON2ID);
-        $this->userModel->create($userName, $userMail, $passwordHash, $userFirstName, $userLastName);
+
+        $foundUser = $this->userModel->getByName($userName);
+        if (!$foundUser) {
+            $this->userModel->create($userName, $userMail, $passwordHash, $userFirstName, $userLastName);
+            $createdUser = $this->userModel->getByName($userName);
+            $_SESSION['createUserName'] = $userName;
+            $_SESSION['createPassword'] = $userPassword;
+            header('Location: /authenticate');
+        } else {
+            $message = "<span>Nome de usuário indisponível.</span>";
+            throw new AuthException($message, 'errorMessage');
+        }
+    } catch (AuthException $exception) {
+        $message = $exception->getMessage();
+        $messageType = $exception->getMessageType();
+        $_SESSION['errorMessage'] = $message;
+        $_SESSION['errorMessageType'] = $messageType;
+        header('Location: /register');
     }
+}
 
     public function authenticate(): void
 {
-    $userName = filter_input(INPUT_POST, 'username', FILTER_UNSAFE_RAW);
-    $password = filter_input(INPUT_POST, 'password', FILTER_UNSAFE_RAW);
-
+    session_start();
+    $userName = filter_input(INPUT_POST, 'username', FILTER_DEFAULT);
+    $password = filter_input(INPUT_POST, 'password', FILTER_DEFAULT);
+    
     try {
         if (!SessionManager::verifySessionState()) {
+            
             if (empty($userName) || empty($password)) {
-                if (isset($_SESSION['tempUserName']) && isset($_SESSION['tempUserPassword'])) {
-                    $userName = $_SESSION['tempUserName'];
-                    $password = $_SESSION['tempUserPassword'];
+                if (isset($_SESSION['createUserName']) && isset($_SESSION['createPassword'])) {
+                    $userName = $_SESSION['createUserName'];
+                    $password = $_SESSION['createPassword'];
                 }
             }
-
             if (!empty($userName) && !empty($password)) {
                 $user = $this->userModel->getByNameAndPassword($userName, $password);
-
+                var_dump('teste');
+                var_dump($user);
                 if ($user['user_id'] > 0) {
                     $this->sessionModel->insert($user['user_id'], $user['user_username']);
                     $message = "<h4>Seja bem-vindo, {$user['user_fullname']}!</h4>";
                     $_SESSION['welcomeMessage'] = $message;
                     header('Location: /profile');
                     return;
+                } else {
+                    $message = "<span>Usuário ou senha inválidos.</span>";
+                    throw new AuthException($message, 'errorMessage');
                 }
             }
-
-            throw new AuthException("<span>Usuário ou senha inválidos.</span>", 'errorMessage');
         } else {
             $message = "<span>Você já está logado!</span>";
             throw new AuthException($message, 'authMessage');
