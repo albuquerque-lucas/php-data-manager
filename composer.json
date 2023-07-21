@@ -1,0 +1,16 @@
+{
+    "name": "albuquerque-lucas/user-task-manager",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "AlbuquerqueLucas\\UserTaskManager\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "albuquerque-lucas",
+            "email": "lucaslpra@gmail.com"
+        }
+    ],
+    "require": {}
+}
