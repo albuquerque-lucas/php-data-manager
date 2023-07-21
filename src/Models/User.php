@@ -61,7 +61,7 @@ public function getByName($userName)
 public function getByNameAndPassword($userName, $password)
 {
   $querySelect = "SELECT * FROM users WHERE user_username = :username";
-
+  
   $statement = $this->connection->prepare($querySelect);
   $statement->bindValue(':username', $userName);
   $statement->execute();
