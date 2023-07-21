@@ -66,8 +66,7 @@ class AuthController
             }
             if (!empty($userName) && !empty($password)) {
                 $user = $this->userModel->getByNameAndPassword($userName, $password);
-                var_dump('teste');
-                var_dump($user);
+                
                 if ($user['user_id'] > 0) {
                     $this->sessionModel->insert($user['user_id'], $user['user_username']);
                     $message = "<h4>Seja bem-vindo, {$user['user_fullname']}!</h4>";

@@ -1,4 +1,4 @@
-<?php require __DIR__ . '/components/header.phtml';?>
+<?php require __DIR__ . '/components/layout/header.phtml';?>
 
 <div class="container d-flex flex-column">
         <h1 class="text-center my-5">Perfil do Usuário</h1>
@@ -33,16 +33,16 @@
             </div>
             <div class="users-count-data">
               <?php
-                include './views/components/totalUsersData.php';
+                include __DIR__ . '/components/totalUsersData.phtml';
               ?>
             </div>
             <?php if ($user['user_access_level_code'] > 3) { ?>
               <div class="users-list">
                 <?php
-                  include './views/components/usersList.php';
+                  include __DIR__ . '/components/usersList.phtml';
                 ?>
               </div>
               <?php } ?>
     </div>
 
-<?php require __DIR__ . '/components/footer.phtml';?>
+<?php require __DIR__ . '/components/layout/footer.phtml';?>
