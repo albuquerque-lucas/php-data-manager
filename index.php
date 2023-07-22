@@ -18,7 +18,6 @@ $router->get('/messages', [$viewController, 'renderNotImplemented']);
 $router->get('/profile', [$viewController, 'renderProfileView']);
 $router->post('/create-user', [$authController, 'createUserRequest']);
 $router->post('/authenticate', [$authController, 'authenticate']);
-$router->get('/authenticate', [$authController, 'authenticate']);
 $router->post('/logout', [$authController, 'deleteRequest']);
 
 $router->addNotFoundHandler(function () {

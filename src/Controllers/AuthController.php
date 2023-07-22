@@ -35,7 +35,7 @@ class AuthController
             $createdUser = $this->userModel->getByName($userName);
             $_SESSION['createUserName'] = $userName;
             $_SESSION['createPassword'] = $userPassword;
-            header('Location: /authenticate');
+            include __DIR__ . '/components/createUserRedirect.php';
         } else {
             $message = "<span>Nome de usuário indisponível.</span>";
             throw new AuthException($message, 'errorMessage');
@@ -66,8 +66,8 @@ class AuthController
             }
             if (!empty($userName) && !empty($password)) {
                 $user = $this->userModel->getByNameAndPassword($userName, $password);
-                
-                if ($user['user_id'] > 0) {
+
+                if (isset($user)) {
                     $this->sessionModel->insert($user['user_id'], $user['user_username']);
                     $message = "<h4>Seja bem-vindo, {$user['user_fullname']}!</h4>";
                     $_SESSION['welcomeMessage'] = $message;

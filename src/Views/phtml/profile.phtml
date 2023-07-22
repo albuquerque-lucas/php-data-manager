@@ -26,18 +26,19 @@
                             <input type="text" class="form-control" id="user-access" value="<?= $userAccess['access_level_name']?>" readonly>
                         </div>
                       </div>
+                      
                     </div>
                     <div class="card w-50 mx-5 d-flex justify-content-center align-items-center">
                       <img src="../src/images/no-image.jpg" alt="Imagem de perfil do usuário" class="h-100 w-75">
                     </div>
             </div>
-            <div class="users-count-data">
+            <?php if ($user['user_access_level_code'] > 3) { ?>
+            <div class="users-count-data mb-5">
               <?php
                 include __DIR__ . '/components/totalUsersData.phtml';
               ?>
             </div>
-            <?php if ($user['user_access_level_code'] > 3) { ?>
-              <div class="users-list">
+              <div class="users-list my-5">
                 <?php
                   include __DIR__ . '/components/usersList.phtml';
                 ?>

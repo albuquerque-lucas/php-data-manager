@@ -60,14 +60,11 @@ public function getByName($userName)
 
 public function getByNameAndPassword($userName, $password)
 {
-  $querySelect = "SELECT * FROM users WHERE user_username = :username";
-  
-  $statement = $this->connection->prepare($querySelect);
-  $statement->bindValue(':username', $userName);
-  $statement->execute();
-  $result = $statement->fetch(PDO::FETCH_ASSOC);
+  $emptyList = [];
+  $result = $this->getByName($userName);
+
   if (!$result) {
-    return false;
+    return $emptyList;
   }
   $userPasswordHash = $result['user_password_hash'];
   if (password_verify($password, $userPasswordHash)) {
@@ -76,10 +73,7 @@ public function getByNameAndPassword($userName, $password)
   return $result;
 }
   else {
-    $message = "<span>Usuário ou senha inválidos. Errinho da classe User.</span>";
-    $_SESSION['errorMessage'] = $message;
-    $_SESSION['errorMessageType'] = 'errorMessage';
-    header('Location: /login');
+    return $emptyList;
 }
 }
 
