@@ -11,6 +11,7 @@ $viewController = new ViewController();
 $authController = new AuthController();
 
 $router->get('/', [$viewController, 'renderHomeView']);
+$router->get('/notFound', [$viewController, 'renderNotFoundView']);
 $router->get('/login', [$viewController, 'renderLoginView']);
 $router->get('/register', [$viewController, 'renderRegisterView']);
 $router->get('/tasks', [$viewController, 'renderNotImplemented']);
@@ -18,11 +19,10 @@ $router->get('/messages', [$viewController, 'renderNotImplemented']);
 $router->get('/profile', [$viewController, 'renderProfileView']);
 $router->post('/create-user', [$authController, 'createUserRequest']);
 $router->post('/authenticate', [$authController, 'authenticate']);
-$router->get('/authenticate', [$authController, 'authenticate']);
 $router->post('/logout', [$authController, 'deleteRequest']);
 
 $router->addNotFoundHandler(function () {
-  echo "404 - Not Found!";
+  header('Location: /notFound');
   exit();
 });
 

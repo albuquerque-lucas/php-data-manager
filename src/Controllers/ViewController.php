@@ -54,6 +54,11 @@ class ViewController
     ]);
   }
 
+  public function renderNotFoundView()
+  {
+    $this->renderHtml('notFound.phtml', []);
+  }
+
   public function renderHtml(string $templatePath, array $data)
   {
     extract($data);
