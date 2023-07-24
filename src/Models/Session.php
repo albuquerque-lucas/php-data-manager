@@ -10,7 +10,7 @@ use \PDO;
 
 class Session
 {
-  private \PDO $connection;
+  private PDO $connection;
   public function __construct()
   {
     $this->connection = Connection::connect();
@@ -22,11 +22,6 @@ class Session
         $statement = $this->connection->prepare($sessionsQuery);
         $statement->execute();
         return $statement->fetch(PDO::FETCH_ASSOC);
-  }
-
-  public function getSessionByUser(int $userId)
-  {
-    $query = "SELECT";
   }
 
   public function getSession(string $token, string $serial)
@@ -65,14 +60,8 @@ class Session
     $statement->bindValue(':serial', $serial);
     $statement->bindValue(':date', $date);
     $statement->execute();
-    
-    $sessionData = [
-      'token' => $token,
-      'serial' => $serial,
-      'date' => $date,
-    ];
-
-    return $sessionData;
+    $result = $this->getSession($token, $serial);
+    return $result;
   }
 
   public function delete($session)

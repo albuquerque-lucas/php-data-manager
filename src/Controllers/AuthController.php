@@ -30,6 +30,7 @@ class AuthController
         $passwordHash = password_hash($userPassword, PASSWORD_ARGON2ID);
 
         $foundUser = $this->userModel->getByUserName($userName);
+
         if (!$foundUser) {
             $this->userModel->create($userName, $userMail, $passwordHash, $userFirstName, $userLastName);
             $createdUser = $this->userModel->getByUserName($userName);
@@ -53,50 +54,101 @@ class AuthController
 {
     $userName = filter_input(INPUT_POST, 'username', FILTER_DEFAULT);
     $password = filter_input(INPUT_POST, 'password', FILTER_DEFAULT);
-
     $sessionData = SessionManager::verifySessionState();
-    $isSessionOn = $sessionData['status'];
+    $status = $sessionData['status'];
 
-    $token = $sessionData['token'];
-    $serial = $sessionData['serial'];
-
-    if (!$isSessionOn) {
-        echo 'User is not logged in.';
+    if ($status === false) {
         if (!empty($userName) && !empty($password)) {
-
-            $user = $this->userModel->getByNameAndPassword($userName, $password);
+            $user = $this->userModel->getByUserName($userName);
             if (!empty($user)) {
-                $newSessionData = $this->sessionModel->create();
-                $newSession = $this->sessionModel->getSession($newSessionData['token'], $newSessionData['serial']);
-                $updatedUser = $this->userModel->updateUserSession($newSession['sessions_id'], $user['user_id']);
-                SessionManager::createCoockies(
-                    $updatedUser['user_username'],
-                    $updatedUser['user_id'],
-                    $token,
-                    $serial
-                );
-                SessionManager::createSession(
-                    $updatedUser['user_username'],
-                    $updatedUser['user_id'],
-                    $token,
-                    $serial
-                );
-                header("Location: /profile");
-                // header("Location: /profile?code={$updatedUser['user_id']}");
-                return;
+                echo 'Usuario encontrado.';
+                if ($user['user_sessions_id'] === null) {
+                    echo 'Realmente o usuario nao tem nenhuam sessao associada.';
+                    $newSession = $this->sessionModel->create();
+                    $user = $this->userModel->updateUserSession($newSession['sessions_id'], $user['user_id']);
+                    
+                    echo 'Agora uma sessao ja esta associada ao usuario em questao.';
+
+                    SessionManager::createCoockies(
+                        $user['user_username'],
+                        $user['user_id'],
+                        $newSession['sessions_token'],
+                        $newSession['sessions_serial']
+                    );
+                    SessionManager::createSession(
+                        $user['user_username'],
+                        $user['user_id'],
+                        $newSession['sessions_token'],
+                        $newSession['sessions_serial']
+                    );
+                    header('Location: /profile');
+                    return;
+                } else {
+                    echo 'Olha so, ja tem uma sessao associada a esse usuario entao eu nao vou criar nada nao.';
+                    exit();
+                }
             } else {
-                var_dump('Usuario nao encontrado.');
+                echo 'Usuario nao encontrado.';
+                exit();
             }
+        } else {
+            var_dump('Usuario ou senha nao informados.');
         }
-
-
-
-
+        exit();
     } else {
-        echo 'User is already logged in.';
+        echo 'Voce ja esta logado!';
+        var_dump('Voce ja esta logado!');
+        exit();
     }
 
-    exit();
+    
+    
+    // $sessionData = SessionManager::verifySessionState();
+    // var_dump($sessionData);
+    // var_dump($userName, $password);
+    // $isSessionOn = $sessionData['status'];
+
+    // $token = $sessionData['token'];
+    // $serial = $sessionData['serial'];
+
+    // var_dump($sessionData);
+    // exit();
+
+    // if (!$isSessionOn) {
+    //     echo 'User is not logged in.';
+    //     if (!empty($userName) && !empty($password)) {
+
+    //         $user = $this->userModel->getByNameAndPassword($userName, $password);
+    //         if (!empty($user)) {
+    //             $newSessionData = $this->sessionModel->create();
+    //             $newSession = $this->sessionModel->getSession($newSessionData['token'], $newSessionData['serial']);
+    //             $updatedUser = $this->userModel->updateUserSession($newSession['sessions_id'], $user['user_id']);
+    //             SessionManager::createCoockies(
+    //                 $updatedUser['user_username'],
+    //                 $updatedUser['user_id'],
+    //                 $token,
+    //                 $serial
+    //             );
+    //             SessionManager::createSession(
+    //                 $updatedUser['user_username'],
+    //                 $updatedUser['user_id'],
+    //                 $token,
+    //                 $serial
+    //             );
+    //             header("Location: /profile");
+    //             // header("Location: /profile?code={$updatedUser['user_id']}");
+    //             return;
+    //         } else {
+    //             var_dump('Usuario nao encontrado.');
+    //         }
+    //     }
+
+
+
+
+    // } else {
+    //     echo 'User is already logged in.';
+    // }
     
     // try {
     //     if (!SessionManager::verifySessionState()) {

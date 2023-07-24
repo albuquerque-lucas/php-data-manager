@@ -13,23 +13,21 @@ class SessionManager
                 session_start();
             }
 
-
         if (
-            isset($_COOKIE['sessions_user_id'])
+            isset($_COOKIE['sessions_id'])
             && isset($_COOKIE['sessions_token'])
             && isset($_COOKIE['sessions_serial'])
             )
             {
-            
-            $id = $_COOKIE['sessions_user_id'];
-            $token = $_COOKIE['sessions_token'];
-            $serial = $_COOKIE['sessions_serial'];
-            $sessionModel = new Session();
-            $userModel = new User();
-            $session = $sessionModel->getSession($token, $serial);
-            $user = $userModel->getById($id);
-            if ($session['sessions_id'] > 0) {
-                if($user['user_id'] == $_COOKIE['sessions_user_id']
+                $id = $_COOKIE['sessions_id'];
+                $token = $_COOKIE['sessions_token'];
+                $serial = $_COOKIE['sessions_serial'];
+                $sessionModel = new Session();
+                $userModel = new User();
+                $session = $sessionModel->getSession($token, $serial);
+                $user = $userModel->getById($id);
+                if ($session['sessions_id'] > 0) {
+                if($user['user_sessions_id'] == $_COOKIE['sessions_id']
                 && $session['sessions_token'] == $_COOKIE['sessions_token']
                 && $session['sessions_serial'] == $_COOKIE['sessions_serial']) {
                         if($user['user_id'] == $_SESSION['sessions_id']
@@ -69,11 +67,49 @@ class SessionManager
             }
             
         }
+        var_dump('Nao entrou no primeiro if. Status e igual a false');
         return [
             'status' => false,
             'token' => '',
             'serial' => '',
         ];
+    }
+
+    public static function getSessionData(): array
+    {
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+        $sessionModel = new Session();
+        $newUser = new User();
+        $sessionData = self::verifySessionState();
+        $status = $sessionData['status'];
+        $token = $sessionData['token'];
+        $serial = $sessionData['serial'];
+        $session = $sessionModel->getSession($token, $serial);
+        if(empty($session)){
+            return [];
+        } else {
+            $sessionsId = $session['sessions_id'];
+            $user = $newUser->getSessionUser($sessionsId);
+            $userAccess = $newUser->getUserAccess($user['user_id']);
+            //$userTasks = $newUser->getUserTasks($userId);
+            $managementData = $newUser->getUserCountByLevel();
+            $allUsers = $newUser->getAll();
+        }
+
+        $userData = [
+            'status' => $status,
+            'user' => $user,
+            'userAccess' => $userAccess,
+            // 'userTasks' => $userTasks,
+        ];
+
+        $managementData = [
+            'userCounting' => $managementData,
+            'allUsers' => $allUsers,
+        ];
+        return [$userData, $managementData];
     }
 
     public static function createSession($userName, $userId, $token, $serial)
@@ -87,51 +123,12 @@ class SessionManager
         $_SESSION['sessions_serial'] = $serial;
     }
 
-    public static function getSessionData()
-    {
-        if (!isset($_SESSION)) {
-            session_start();
-        }
-        $sessionModel = new Session();
-        $newUser = new User();
-        $sessionData = self::verifySessionState();
-        $status = $sessionData['status'];
-        $token = $sessionData['token'];
-        $serial = $sessionData['serial'];
-        $session = $sessionModel->getSession($token, $serial);
-        
-        // var_dump($session);
-        // exit();
-        if(!$session){
-            return false;
-        } else {
-            $sessionsId = $session['sessions_id'];
-            $user = $newUser->getSessionUser($sessionsId);
-            // $userAccess = $newUser->getUserAccess($userId);
-            // $userTasks = $newUser->getUserTasks($userId);
-            $managementData = $newUser->getUserCountByLevel();
-            $allUsers = $newUser->getAll();
-        }
-
-        $userData = [
-            'status' => $status,
-            'user' => $user,
-            // 'userAccess' => $userAccess,
-            // 'userTasks' => $userTasks,
-        ];
-
-        $managementData = [
-            'userCounting' => $managementData,
-            'allUsers' => $allUsers,
-        ];
-        return [$userData, $managementData];
-    }
 
     public static function createCoockies($userName, $userId, $token, $serial): void
     {
         $expirationTime = time() + (30 * 24 * 60 * 60);
-        setcookie('sessions_user_id', $userId, time() + $expirationTime, "/");
         setcookie('sessions_username', $userName, time() + $expirationTime, "/");
+        setcookie('sessions_id', $userId, time() + $expirationTime, "/");
         setcookie('sessions_token', $token, time() + $expirationTime, "/");
         setcookie('sessions_serial', $serial, time() + $expirationTime, "/");
     }

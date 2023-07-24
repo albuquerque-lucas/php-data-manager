@@ -17,10 +17,6 @@ $router->get('/register', [$viewController, 'renderRegisterView']);
 $router->get('/tasks', [$viewController, 'renderNotImplemented']);
 $router->get('/messages', [$viewController, 'renderNotImplemented']);
 $router->get('/profile', [$viewController, 'renderProfileView']);
-// $router->get('/profile', function ($params) use ($viewController) {
-//   // Captura o valor do parâmetro "id" e passa para o método renderProfileView
-//   $viewController->renderProfileView($params['code']);
-// });
 $router->post('/create-user', [$authController, 'createUserRequest']);
 $router->post('/authenticate', [$authController, 'authenticate']);
 $router->post('/logout', [$authController, 'deleteRequest']);
