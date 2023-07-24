@@ -7,6 +7,7 @@ use AlbuquerqueLucas\UserTaskManager\Utils\SessionManager;
 use DateTime;
 use DateTimeZone;
 use \PDO;
+use PDOException;
 
 class Session
 {
@@ -37,17 +38,6 @@ class Session
     
   }
 
-  // public function getByToken(string $sessionToken)
-  // {
-  //   $query = "SELECT * FROM sessions WHERE sessions_token = :token";
-  //   $statement = $this->connection->prepare($query);
-  //   $statement->bindValue(':token', $sessionToken);
-  //   $statement->execute();
-  //   $result = $statement->fetch(\PDO::FETCH_ASSOC);
-
-  //   return $result;
-  // }
-
   public function create()
   {
     $queryInsert = "INSERT INTO sessions (sessions_token, sessions_serial, sessions_datetime) VALUES (:token, :serial, :date)";
@@ -66,20 +56,25 @@ class Session
 
   public function delete($session)
   {
-    $querySelect = "SELECT user_sessions_id FROM users WHERE user_id = :user_id;";
-    $statement = $this->connection->prepare($querySelect);
-    $statement->bindValue(':user_id', $session['sessions_user_id']);
-    $statement->execute();
-
-    $result = $statement->fetch();
-    $userSessionsId = $result['user_sessions_id'];
-
-    if ($userSessionsId) {
-        $queryDelete = "DELETE FROM sessions WHERE sessions_id = :sessions_id;";
-        $statement = $this->connection->prepare($queryDelete);
-        $statement->bindValue(':sessions_id', $userSessionsId);
-        $statement->execute();
-    }
+      try {
+          $this->connection->beginTransaction();
+  
+          $queryUpdateUsers = "UPDATE users SET user_sessions_id = NULL WHERE user_sessions_id = :session_id";
+          $statementUpdateUsers = $this->connection->prepare($queryUpdateUsers);
+          $statementUpdateUsers->bindValue(':session_id', $session['sessions_id'], PDO::PARAM_INT);
+          $statementUpdateUsers->execute();
+  
+          $queryDeleteSession = "DELETE FROM sessions WHERE sessions_id = :session_id";
+          $statementDeleteSession = $this->connection->prepare($queryDeleteSession);
+          $statementDeleteSession->bindValue(':session_id', $session['sessions_id'], PDO::PARAM_INT);
+          $statementDeleteSession->execute();
+  
+          $this->connection->commit();
+  
+      } catch (PDOException $e) {
+          $this->connection->rollBack();
+          // Aqui você pode lidar com o erro de alguma forma, por exemplo, lançando uma exceção ou registrando o erro em um arquivo de log.
+      }
   }
 
   private static function createString(int $length): string

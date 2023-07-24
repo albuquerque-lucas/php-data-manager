@@ -20,9 +20,12 @@ class ViewController
   public function renderLoginView()
   {
     session_start();
+    $sessionData = SessionManager::getSessionData();
+    list($userData, $managementData) = $sessionData;
     $message = $_SESSION['errorMessage'];
     $this->renderHtml('login.phtml', [
       'message' => $message,
+      'status' => $userData['status']
     ]);
   }
 

@@ -71,13 +71,13 @@ class AuthController
 
                     SessionManager::createCoockies(
                         $user['user_username'],
-                        $user['user_id'],
+                        $user['user_sessions_id'],
                         $newSession['sessions_token'],
                         $newSession['sessions_serial']
                     );
                     SessionManager::createSession(
                         $user['user_username'],
-                        $user['user_id'],
+                        $user['user_sessions_id'],
                         $newSession['sessions_token'],
                         $newSession['sessions_serial']
                     );
@@ -188,12 +188,10 @@ class AuthController
     //Delete Request
     public function deleteRequest(): void
     {
-        echo 'Delete Request.';
-        exit();
-        // $userId = filter_input(INPUT_POST, 'userid', FILTER_DEFAULT);
-        // $currentSession = $this->userModel->getUserSession($userId);
-        // $this->sessionModel->delete($currentSession);
-        // SessionManager::deleteCookies();
-        // header('Location: /login');
+        $userId = filter_input(INPUT_POST, 'userid', FILTER_DEFAULT);
+        $currentSession = $this->sessionModel->getSession($_COOKIE['sessions_token'], $_COOKIE['sessions_serial']);
+        $this->sessionModel->delete($currentSession);
+        SessionManager::deleteCookies();
+        header('Location: /login');
     }
 }

@@ -12,7 +12,6 @@ class SessionManager
         if(!isset($_SESSION)){
                 session_start();
             }
-
         if (
             isset($_COOKIE['sessions_id'])
             && isset($_COOKIE['sessions_token'])
@@ -26,11 +25,21 @@ class SessionManager
                 $userModel = new User();
                 $session = $sessionModel->getSession($token, $serial);
                 $user = $userModel->getById($id);
+                // var_dump($user);
+                // var_dump($session);
+                // var_dump($_SESSION);
+                // var_dump($_COOKIE);
+                // var_dump(
+                //     $user['user_sessions_id'] == $_COOKIE['sessions_id']
+                // && $session['sessions_token'] == $_COOKIE['sessions_token']
+                // && $session['sessions_serial'] == $_COOKIE['sessions_serial']
+                // );
+                // exit();
                 if ($session['sessions_id'] > 0) {
                 if($user['user_sessions_id'] == $_COOKIE['sessions_id']
                 && $session['sessions_token'] == $_COOKIE['sessions_token']
                 && $session['sessions_serial'] == $_COOKIE['sessions_serial']) {
-                        if($user['user_id'] == $_SESSION['sessions_id']
+                        if($user['user_sessions_id'] == $_SESSION['sessions_id']
                         && $session['sessions_token'] == $_SESSION['sessions_token']
                         && $session['sessions_serial'] == $_SESSION['sessions_serial']) {
                             return [
@@ -83,13 +92,22 @@ class SessionManager
         $sessionModel = new Session();
         $newUser = new User();
         $sessionData = self::verifySessionState();
-        $status = $sessionData['status'];
         $token = $sessionData['token'];
         $serial = $sessionData['serial'];
         $session = $sessionModel->getSession($token, $serial);
         if(empty($session)){
-            return [];
+            $userData = [
+                'status' => false,
+                'user' => 'Guest',
+                'userAccess' => 'visitor' 
+            ];
+
+            $managementData = [
+                'message' => 'Você não tem acesso aos dados de gerenciamento'
+            ];
+            return [$userData, $managementData];
         } else {
+            $status = true;
             $sessionsId = $session['sessions_id'];
             $user = $newUser->getSessionUser($sessionsId);
             $userAccess = $newUser->getUserAccess($user['user_id']);
@@ -135,8 +153,8 @@ class SessionManager
 
     public static function deleteCookies(): void
     {
-        setcookie('sessions_user_id', '', time() - 1, "/");
         setcookie('sessions_username', '', time() - 1, "/");
+        setcookie('sessions_id', '', time() - 1, "/");
         setcookie('sessions_token', '', time() - 1, "/");
         setcookie('sessions_serial', '', time() - 1, "/");
     }
