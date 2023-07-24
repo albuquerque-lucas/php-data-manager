@@ -24,55 +24,73 @@ class Session
         return $statement->fetch(PDO::FETCH_ASSOC);
   }
 
-  public function findSession(int $id, string $token, string $serial)
+  public function getSessionByUser(int $userId)
   {
-    $querySelectAll = "SELECT * FROM sessions WHERE sessions_userid = :userId AND sessions_token = :token AND sessions_serial = :serial;";
+    $query = "SELECT";
+  }
+
+  public function getSession(string $token, string $serial)
+  {
+    $querySelectAll = "SELECT * FROM sessions WHERE sessions_token = :token AND sessions_serial = :serial;";
     $statement = $this->connection->prepare($querySelectAll);
-
-    $id = $_COOKIE['sessions_userid'];
-    $token = $_COOKIE['sessions_token'];
-    $serial = $_COOKIE['sessions_serial'];
-
-    $statement->bindValue(':userId', $id, PDO::PARAM_INT);
     $statement->bindValue(':token', $token, PDO::PARAM_INT);
     $statement->bindValue(':serial', $serial, PDO::PARAM_INT);
-
     $statement->execute();
-    return $statement->fetch(PDO::FETCH_ASSOC);
+    $result = $statement->fetch(PDO::FETCH_ASSOC);
+
+    return $result;
     
   }
 
-  public function findById(int $id):array
-  {
-    $querySearch = "SELECT * FROM sessions WHERE sessions_userid = :user_id";
-    $searchStatement = $this->connection->prepare($querySearch);
-    $searchStatement->bindValue(':user_id', $id);
-    $searchStatement->execute();
-    return $searchStatement->fetch(\PDO::FETCH_ASSOC);
-  }
+  // public function getByToken(string $sessionToken)
+  // {
+  //   $query = "SELECT * FROM sessions WHERE sessions_token = :token";
+  //   $statement = $this->connection->prepare($query);
+  //   $statement->bindValue(':token', $sessionToken);
+  //   $statement->execute();
+  //   $result = $statement->fetch(\PDO::FETCH_ASSOC);
 
-  public function insert($userId, $userName)
+  //   return $result;
+  // }
+
+  public function create()
   {
-    $queryInsert = "INSERT INTO sessions (sessions_userid, sessions_token, sessions_serial, sessions_datetime) VALUES (:userid, :token, :serial, :date)";
+    $queryInsert = "INSERT INTO sessions (sessions_token, sessions_serial, sessions_datetime) VALUES (:token, :serial, :date)";
     $token = self::createString(32);
     $serial = self::createString(32);
-    SessionManager::createCoockie($userName, $userId, $token, $serial);
-    SessionManager::createSession($userName, $userId, $token, $serial);
+    $date = $this->getDateTime();
 
     $statement = $this->connection->prepare($queryInsert);
-    $statement->bindValue(':userid', $userId);
     $statement->bindValue(':token', $token);
     $statement->bindValue(':serial', $serial);
-    $statement->bindValue(':date', $this->getDateTime());
+    $statement->bindValue(':date', $date);
     $statement->execute();
+    
+    $sessionData = [
+      'token' => $token,
+      'serial' => $serial,
+      'date' => $date,
+    ];
+
+    return $sessionData;
   }
 
   public function delete($session)
   {
-    $queryDelete = "DELETE FROM sessions WHERE sessions_userid = :user_id;";
-    $statement = $this->connection->prepare($queryDelete);
-    $statement->bindValue(':user_id', $session['sessions_userid']);
+    $querySelect = "SELECT user_sessions_id FROM users WHERE user_id = :user_id;";
+    $statement = $this->connection->prepare($querySelect);
+    $statement->bindValue(':user_id', $session['sessions_user_id']);
     $statement->execute();
+
+    $result = $statement->fetch();
+    $userSessionsId = $result['user_sessions_id'];
+
+    if ($userSessionsId) {
+        $queryDelete = "DELETE FROM sessions WHERE sessions_id = :sessions_id;";
+        $statement = $this->connection->prepare($queryDelete);
+        $statement->bindValue(':sessions_id', $userSessionsId);
+        $statement->execute();
+    }
   }
 
   private static function createString(int $length): string

@@ -7,26 +7,39 @@ use AlbuquerqueLucas\UserTaskManager\Models\User;
 
 class SessionManager
 {
-    public static function verifySessionState(): bool
+    public static function verifySessionState(): array
     {
         if(!isset($_SESSION)){
-            session_start();
-        }
-        if(isset($_COOKIE['sessions_userid']) && isset($_COOKIE['sessions_token']) && isset($_COOKIE['sessions_serial'])){
+                session_start();
+            }
+
+
+        if (
+            isset($_COOKIE['sessions_user_id'])
+            && isset($_COOKIE['sessions_token'])
+            && isset($_COOKIE['sessions_serial'])
+            )
+            {
             
-            $id = $_COOKIE['sessions_userid'];
+            $id = $_COOKIE['sessions_user_id'];
             $token = $_COOKIE['sessions_token'];
             $serial = $_COOKIE['sessions_serial'];
-            $newSession = new Session();
-            $session = $newSession->findSession($id, $token, $serial);
+            $sessionModel = new Session();
+            $userModel = new User();
+            $session = $sessionModel->getSession($token, $serial);
+            $user = $userModel->getById($id);
             if ($session['sessions_id'] > 0) {
-                if($session['sessions_userid'] == $_COOKIE['sessions_userid']
+                if($user['user_id'] == $_COOKIE['sessions_user_id']
                 && $session['sessions_token'] == $_COOKIE['sessions_token']
                 && $session['sessions_serial'] == $_COOKIE['sessions_serial']) {
-                        if($session['sessions_userid'] == $_SESSION['sessions_id']
+                        if($user['user_id'] == $_SESSION['sessions_id']
                         && $session['sessions_token'] == $_SESSION['sessions_token']
                         && $session['sessions_serial'] == $_SESSION['sessions_serial']) {
-                            return true;
+                            return [
+                                'status' => true,
+                                'token' => $token,
+                                'serial' => $serial,
+                            ];
                         } else{
                             self::createSession(
                                 $_COOKIE['user_username'],
@@ -34,17 +47,33 @@ class SessionManager
                                 $token,
                                 $serial
                             );
-                            return true;
+                            return [
+                                'status' => true,
+                                'token' => $token,
+                                'serial' => $serial,
+                            ];
                         }
                 } else {
-                    return false;
+                    return [
+                        'status' => false,
+                        'token' => '',
+                        'serial' => '',
+                    ];
                 }
             } else {
-                return false;
+                return [
+                    'status' => false,
+                    'token' => '',
+                    'serial' => '',
+                ];
             }
             
         }
-        return false;
+        return [
+            'status' => false,
+            'token' => '',
+            'serial' => '',
+        ];
     }
 
     public static function createSession($userName, $userId, $token, $serial)
@@ -60,27 +89,48 @@ class SessionManager
 
     public static function getSessionData()
     {
-        $newSession = new Session();
+        if (!isset($_SESSION)) {
+            session_start();
+        }
+        $sessionModel = new Session();
         $newUser = new User();
-        $result = $newSession->getAll();
-        $status = self::verifySessionState();
-        if(!$result){
+        $sessionData = self::verifySessionState();
+        $status = $sessionData['status'];
+        $token = $sessionData['token'];
+        $serial = $sessionData['serial'];
+        $session = $sessionModel->getSession($token, $serial);
+        
+        // var_dump($session);
+        // exit();
+        if(!$session){
             return false;
         } else {
-            $userId = $result['sessions_userid'];
-            $user = $newUser->getUserSession($userId);
-            $userAccess = $newUser->getUserAccess($userId);
-            $managementData = $newUser->getUserManagementData();
-            $userTasks = $newUser->getUserTasks($userId);
+            $sessionsId = $session['sessions_id'];
+            $user = $newUser->getSessionUser($sessionsId);
+            // $userAccess = $newUser->getUserAccess($userId);
+            // $userTasks = $newUser->getUserTasks($userId);
+            $managementData = $newUser->getUserCountByLevel();
             $allUsers = $newUser->getAll();
         }
-        return [$status, $user, $userAccess, $managementData, $allUsers, $userTasks];
+
+        $userData = [
+            'status' => $status,
+            'user' => $user,
+            // 'userAccess' => $userAccess,
+            // 'userTasks' => $userTasks,
+        ];
+
+        $managementData = [
+            'userCounting' => $managementData,
+            'allUsers' => $allUsers,
+        ];
+        return [$userData, $managementData];
     }
 
-    public static function createCoockie($userName, $userId, $token, $serial): void
+    public static function createCoockies($userName, $userId, $token, $serial): void
     {
         $expirationTime = time() + (30 * 24 * 60 * 60);
-        setcookie('sessions_userid', $userId, time() + $expirationTime, "/");
+        setcookie('sessions_user_id', $userId, time() + $expirationTime, "/");
         setcookie('sessions_username', $userName, time() + $expirationTime, "/");
         setcookie('sessions_token', $token, time() + $expirationTime, "/");
         setcookie('sessions_serial', $serial, time() + $expirationTime, "/");
@@ -88,10 +138,9 @@ class SessionManager
 
     public static function deleteCookies(): void
     {
-        setcookie('sessions_userid', '', time() - 1, "/");
+        setcookie('sessions_user_id', '', time() - 1, "/");
         setcookie('sessions_username', '', time() - 1, "/");
         setcookie('sessions_token', '', time() - 1, "/");
         setcookie('sessions_serial', '', time() - 1, "/");
-        header('Location: /home');
     }
 }

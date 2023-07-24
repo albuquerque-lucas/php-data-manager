@@ -7,7 +7,7 @@ use \PDO;
 
 class User
 {
-  private \PDO $connection;
+  private PDO $connection;
   public function __construct()
   {
     $this->connection = Connection::connect();
@@ -15,12 +15,47 @@ class User
 
   public function getAll()
   {
-    $querySelect = "SELECT * FROM users";
-    $statement = $this->connection->prepare($querySelect);
+    $query = "SELECT * FROM users";
+    $statement = $this->connection->prepare($query);
     $statement->execute();
     $result = $statement->fetchAll(PDO::FETCH_ASSOC);
     return $result;
   }
+
+  public function getByUserName($userName)
+{
+  $query = "SELECT * FROM users WHERE user_username = :username";
+
+  $statement = $this->connection->prepare($query);
+  $statement->bindValue(':username', $userName);
+  $statement->execute();
+
+  $result = $statement->fetch(PDO::FETCH_ASSOC);
+  return $result;
+}
+
+public function getById($userId)
+{
+  $query = "SELECT * FROM users WHERE user_id = :userid";
+
+  $statement = $this->connection->prepare($query);
+  $statement->bindValue(':userid', $userId);
+  $statement->execute();
+
+  $result = $statement->fetch(PDO::FETCH_ASSOC);
+  return $result;
+}
+
+public function getSessionUser(int $id)
+{
+  $query = "SELECT * FROM users WHERE user_sessions_id = :id";
+  $statement = $this->connection->prepare($query);
+  $statement->bindValue(':id', $id);
+  $statement->execute();
+  $result = $statement->fetch(PDO::FETCH_ASSOC);
+
+  return $result;
+}
 
   public function create(
   $userName, 
@@ -30,13 +65,13 @@ class User
   $userLastName
 )
   {
-      $queryCreate = "INSERT INTO users (user_username, user_email, user_password_hash, user_access_level_code, user_firstname, user_lastname, user_fullname)
+      $query = "INSERT INTO users (user_username, user_email, user_password_hash, user_access_level_code, user_firstname, user_lastname, user_fullname)
         VALUES (:username, :usermail, :passwordhash, :useraccess, :firstname, :lastname, :fullname)";
         $filteredFirstName = $this->sanitizeString($userFirstName);
         $filteredLastName = $this->sanitizeString($userLastName);
         $fullName = "$filteredFirstName $filteredLastName";
         $basicAccessLevel = 1;
-        $statement = $this->connection->prepare($queryCreate);
+        $statement = $this->connection->prepare($query);
         $statement->bindValue(':username', $userName);
         $statement->bindValue(':usermail', $userMail);
         $statement->bindValue(':passwordhash', $userPassword);
@@ -47,21 +82,10 @@ class User
         $statement->execute();
     }
 
-public function getByName($userName)
-{
-  $querySelectByName = "SELECT * FROM users WHERE user_username = :username";
-
-  $statement = $this->connection->prepare($querySelectByName);
-  $statement->bindValue(':username', $userName);
-  $statement->execute();
-
-  return $statement->fetch(PDO::FETCH_ASSOC);
-}
-
 public function getByNameAndPassword($userName, $password)
 {
   $emptyList = [];
-  $result = $this->getByName($userName);
+  $result = $this->getByUserName($userName);
 
   if (!$result) {
     return $emptyList;
@@ -77,23 +101,14 @@ public function getByNameAndPassword($userName, $password)
 }
 }
 
-public function getUserSession($id)
-{
-  $querySelectSession = "SELECT u.* FROM users u JOIN sessions s ON u.user_id = :id";
-  $statement = $this->connection->prepare($querySelectSession);
-  $statement->bindValue(':id', $id);
-  $statement->execute();
-  return $statement->fetch(PDO::FETCH_ASSOC);
-}
-
 public function getUserAccess($id)
 {
-  $querySelect = "SELECT u.user_access_level_code, al.access_level_name
+  $query = "SELECT u.user_access_level_code, al.access_level_name
   FROM users u
   JOIN access_levels al ON u.user_access_level_code = al.access_level_code
   WHERE u.user_id = :id";
 
-$statement = $this->connection->prepare($querySelect);
+$statement = $this->connection->prepare($query);
 $statement->bindValue(':id', $id);
 $statement->execute();
 
@@ -103,11 +118,11 @@ return $result;
 
 public function getUserTasks($userId)
 {
-  $querySelect = "SELECT t.*
+  $query = "SELECT t.*
   FROM tasks t
   WHERE t.task_user_id = :userId";
 
-  $statement = $this->connection->prepare($querySelect);
+  $statement = $this->connection->prepare($query);
   $statement->bindValue(':userId', $userId);
   $statement->execute();
 
@@ -115,9 +130,9 @@ public function getUserTasks($userId)
   return $result;
 }
 
-public function getUserManagementData()
+public function getUserCountByLevel()
 {
-  $querySelect = "SELECT COUNT(*) AS users_total_count,
+  $query = "SELECT COUNT(*) AS users_total_count,
   SUM(CASE WHEN al.access_level_name = 'Basic' THEN 1 ELSE 0 END) AS users_basic,
   SUM(CASE WHEN al.access_level_name = 'Reviewer' THEN 1 ELSE 0 END) AS users_reviewer,
   SUM(CASE WHEN al.access_level_name = 'Administrator' THEN 1 ELSE 0 END) AS users_administrator,
@@ -125,11 +140,22 @@ public function getUserManagementData()
 FROM users u
 JOIN access_levels al ON u.user_access_level_code = al.access_level_code";
 
-$statement = $this->connection->prepare($querySelect);
+$statement = $this->connection->prepare($query);
 $statement->execute();
 
 $result = $statement->fetch(PDO::FETCH_ASSOC);
 return $result;
+}
+
+public function updateUserSession(int $newSessionId, int $userId)
+{
+  $query = "UPDATE users SET user_sessions_id = $newSessionId WHERE user_id = $userId";
+  $statement = $this->connection->prepare($query);
+  $statement->execute();
+
+  $updatedUser = $this->getById($userId);
+
+  return $updatedUser;
 }
 
 public function sanitizeString($string)

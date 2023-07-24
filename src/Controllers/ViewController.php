@@ -10,10 +10,10 @@ class ViewController
   public function renderHomeView()
   {
     $sessionData = SessionManager::getSessionData();
-    list($status, $user) = $sessionData;
+    list($userData, $managementData) = $sessionData;
     $this->renderHtml('home.phtml', [
-      'status' => $status,
-      'user' => $user,
+      'status' => $userData['status'],
+      'user' => $userData['user'],
     ]);
   }
 
@@ -34,23 +34,23 @@ class ViewController
   public function renderProfileView()
   {
     $sessionData = SessionManager::getSessionData();
-    list($status, $user, $userAccess, $managementData, $allUsers) = $sessionData;
+    list($userData, $managementData) = $sessionData;
     $this->renderHtml('profile.phtml', [
-      'status' => $status,
-      'user' => $user,
-      'userAccess' => $userAccess,
-      'managementData' => $managementData,
-      'allUsers' => $allUsers,
+      'status' => $userData['status'],
+      'user' => $userData['user'],
+      'userAccess' => $userData['userAccess'],
+      'managementData' => $managementData['userCounting'],
+      'allUsers' => $managementData['allUsers'],
     ]);
   }
 
   public function renderNotImplemented()
   {
     $sessionData = SessionManager::getSessionData();
-    list($status, $user) = $sessionData;
+    list($userData, $managementData) = $sessionData;
     $this->renderHtml('notImplemented.phtml', [
-      'status' => $status,
-      'user' => $user,
+      'status' => $userData['status'],
+      'user' => $userData['user'],
     ]);
   }
 

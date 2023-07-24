@@ -21,6 +21,15 @@ CREATE TABLE task_status (
   PRIMARY KEY(task_status_id)
 );
 
+DROP TABLE IF EXISTS sessions;
+CREATE TABLE sessions (
+  sessions_id int NOT NULL AUTO_INCREMENT,
+  sessions_token varchar(45) DEFAULT NULL,
+  sessions_serial varchar(45) DEFAULT NULL,
+  sessions_datetime varchar(40) DEFAULT NULL,
+  PRIMARY KEY (sessions_id)
+);
+
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
   user_id int NOT NULL AUTO_INCREMENT,
@@ -31,22 +40,16 @@ CREATE TABLE users (
   user_email varchar(45) DEFAULT NULL,
   user_password_hash varchar(500) DEFAULT NULL,
   user_access_level_code int DEFAULT NULL,
+  user_sessions_id int DEFAULT NULL,
   PRIMARY KEY (user_id),
-  CONSTRAINT fk_user_access_level
-  FOREIGN KEY (user_access_level_code)
-  REFERENCES access_levels (access_level_code)
+  CONSTRAINT fk_user_access_level_code
+    FOREIGN KEY (user_access_level_code)
+    REFERENCES access_levels (access_level_code),
+  CONSTRAINT fk_user_sessions_id
+    FOREIGN KEY (user_sessions_id)
+    REFERENCES sessions (sessions_id)
 );
 
-DROP TABLE IF EXISTS sessions;
-CREATE TABLE sessions (
-  sessions_id int NOT NULL AUTO_INCREMENT,
-  sessions_token varchar(45) DEFAULT NULL,
-  sessions_serial varchar(45) DEFAULT NULL,
-  sessions_datetime varchar(40) DEFAULT NULL,
-  sessions_userid int DEFAULT NULL,
-  PRIMARY KEY (sessions_id),
-  CONSTRAINT fk_sessions_user FOREIGN KEY (sessions_userid) REFERENCES users (user_id)
-);
 
 DROP TABLE IF EXISTS tasks;
 CREATE TABLE tasks (
