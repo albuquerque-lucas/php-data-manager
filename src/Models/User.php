@@ -63,7 +63,7 @@ public function getSessionUser(int $id)
   $userPassword,
   $userFirstName,
   $userLastName
-)
+) : bool
   {
       $query = "INSERT INTO users (user_username, user_email, user_password_hash, user_access_level_code, user_firstname, user_lastname, user_fullname)
         VALUES (:username, :usermail, :passwordhash, :useraccess, :firstname, :lastname, :fullname)";
@@ -80,6 +80,14 @@ public function getSessionUser(int $id)
         $statement->bindValue(':lastname', $filteredLastName);
         $statement->bindValue(':fullname', $fullName);
         $statement->execute();
+
+        $createdUser = $this->getByUserName($userName);
+        
+        if (!$createdUser) {
+          return false;
+        } else {
+          return true;
+        }
     }
 
 public function getByNameAndPassword($userName, $password)
