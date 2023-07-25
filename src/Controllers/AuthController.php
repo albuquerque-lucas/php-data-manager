@@ -19,97 +19,102 @@ class AuthController
     }
 
     public function createUserRequest()
-{
-    session_start();
-    try {
-        $userName = filter_input(INPUT_POST, 'username', FILTER_DEFAULT);
-        $userMail = filter_input(INPUT_POST, 'email', FILTER_DEFAULT);
-        $userPassword = filter_input(INPUT_POST, 'password', FILTER_DEFAULT);
-        $userFirstName = filter_input(INPUT_POST, 'firstname', FILTER_DEFAULT);
-        $userLastName = filter_input(INPUT_POST, 'lastname', FILTER_DEFAULT);
-        $passwordHash = password_hash($userPassword, PASSWORD_ARGON2ID);
+    {
+        session_start();
+        try {
+            $userName = filter_input(INPUT_POST, 'username', FILTER_DEFAULT);
+            $userMail = filter_input(INPUT_POST, 'email', FILTER_DEFAULT);
+            $userPassword = filter_input(INPUT_POST, 'password', FILTER_DEFAULT);
+            $userFirstName = filter_input(INPUT_POST, 'firstname', FILTER_DEFAULT);
+            $userLastName = filter_input(INPUT_POST, 'lastname', FILTER_DEFAULT);
+            $passwordHash = password_hash($userPassword, PASSWORD_ARGON2ID);
 
-        $foundUser = $this->userModel->getByUserName($userName);
+            $foundUser = $this->userModel->getByUserName($userName);
 
-        if (!$foundUser) {
-            $this->userModel->create($userName, $userMail, $passwordHash, $userFirstName, $userLastName);
-            $createdUser = $this->userModel->getByUserName($userName);
-            $_SESSION['createUserName'] = $userName;
-            $_SESSION['createPassword'] = $userPassword;
-            include __DIR__ . '/components/createUserRedirect.php';
-        } else {
-            $message = "<span>Nome de usuário indisponível.</span>";
-            throw new AuthException($message, 'errorMessage');
+            if (!$foundUser) {
+                $userCreated = $this->userModel->create($userName, $userMail, $passwordHash, $userFirstName, $userLastName);
+                
+                if ($userCreated) {
+                    include __DIR__ . '/components/createUserRedirect.php';
+                } else {
+                    $message = 'Erro inesperado. Não foi possível criar o usuário.';
+                    throw new AuthException($message, 'errorMessage');
+                }
+
+            } else {
+                $message = "<span>Nome de usuário indisponível.</span>";
+                throw new AuthException($message, 'errorMessage');
+            }
+        } catch (AuthException $exception) {
+            $message = $exception->getMessage();
+            $messageType = $exception->getMessageType();
+            $_SESSION['errorMessage'] = $message;
+            $_SESSION['errorMessageType'] = $messageType;
+            header('Location: /register');
         }
-    } catch (AuthException $exception) {
-        $message = $exception->getMessage();
-        $messageType = $exception->getMessageType();
-        $_SESSION['errorMessage'] = $message;
-        $_SESSION['errorMessageType'] = $messageType;
-        header('Location: /register');
     }
-}
 
     public function authenticate(): void
-{
-    $userName = filter_input(INPUT_POST, 'username', FILTER_DEFAULT);
-    $password = filter_input(INPUT_POST, 'password', FILTER_DEFAULT);
+    {
+        $userName = filter_input(INPUT_POST, 'username', FILTER_DEFAULT);
+        $password = filter_input(INPUT_POST, 'password', FILTER_DEFAULT);
 
-    try {
-$sessionData = SessionManager::verifySessionState();
-    $status = $sessionData['status'];
-    if ($status === false) {
-        if (!empty($userName) && !empty($password)) {
-            $user = $this->userModel->getByNameAndPassword($userName, $password);
-            if (!empty($user)) {
-                echo 'Usuario encontrado.';
-                if ($user['user_sessions_id'] === null) {
-                    $newSession = $this->sessionModel->create();
-                    $user = $this->userModel->updateUserSession($newSession['sessions_id'], $user['user_id']);
+        try {
+            $sessionData = SessionManager::verifySessionState();
+            $status = $sessionData['status'];
+            if ($status === false) {
+                if (!empty($userName) && !empty($password)) {
+                    $user = $this->userModel->getByNameAndPassword($userName, $password);
+                    if (!empty($user)) {
+                        echo 'Usuario encontrado.';
+                        if ($user['user_sessions_id'] === null) {
+                            $newSession = $this->sessionModel->create();
+                            $user = $this->userModel->updateUserSession($newSession['sessions_id'], $user['user_id']);
 
-                    SessionManager::createCoockies(
-                        $user['user_username'],
-                        $user['user_sessions_id'],
-                        $newSession['sessions_token'],
-                        $newSession['sessions_serial']
-                    );
-                    SessionManager::createSession(
-                        $user['user_username'],
-                        $user['user_sessions_id'],
-                        $newSession['sessions_token'],
-                        $newSession['sessions_serial']
-                    );
+                            SessionManager::createCoockies(
+                                $user['user_username'],
+                                $user['user_sessions_id'],
+                                $newSession['sessions_token'],
+                                $newSession['sessions_serial']
+                            );
+                            SessionManager::createSession(
+                                $user['user_username'],
+                                $user['user_sessions_id'],
+                                $newSession['sessions_token'],
+                                $newSession['sessions_serial']
+                            );
 
-                    header('Location: /profile');
-                    return;
+                            header('Location: /profile');
+                            return;
+                        } else {
+                            $message = "<span>Este usuário já possui uma sessão correspondente.</span>";
+                            throw new AuthException($message, 'errorMessage');
+                        }
+                    } else {
+                        // Caso nao tenha sido encontrado um usuario com os dados fornecidos.
+                        $message = "<span>Usuário ou senha inválidos.</span>";
+                        throw new AuthException($message, 'errorMessage');
+                    }
                 } else {
-                    $message = "<span>Este usuário já possui uma sessão correspondente.</span>";
+                    // Caso nao tenha sido indentificado valores válidos nos inputs.
+                    $message = "<span>Todos os campos precisam ser preenchidos.</span>";
                     throw new AuthException($message, 'errorMessage');
                 }
             } else {
-                // Caso nao tenha sido encontrado um usuario com os dados fornecidos.
-                $message = "<span>Usuário ou senha inválidos.</span>";
+                // Caso o usuario ja esteja logado.
+                $message = "<span>Você já está logado.</span>";
                 throw new AuthException($message, 'errorMessage');
             }
-        } else {
-            // Caso nao tenha sido indentificado valores válidos nos inputs.
-            $message = "<span>Todos os campos precisam ser preenchidos.</span>";
-            throw new AuthException($message, 'errorMessage');
+        } catch (AuthException $exception) {
+            $message = $exception->getMessage();
+            $messageType = $exception->getMessageType();
+            $_SESSION['errorMessage'] = $message;
+            $_SESSION['errorMessageType'] = $messageType;
+            header('Location: /login');
         }
-    } else {
-        // Caso o usuario ja esteja logado.
-        $message = "<span>Você já está logado.</span>";
-        throw new AuthException($message, 'errorMessage');
     }
-    } catch (AuthException $exception) {
-        $message = $exception->getMessage();
-        $messageType = $exception->getMessageType();
-        $_SESSION['errorMessage'] = $message;
-        $_SESSION['errorMessageType'] = $messageType;
-        header('Location: /login');
-    }
-}
-    //Delete Request
+
+    // Delete Request
     public function deleteRequest(): void
     {
         $userId = filter_input(INPUT_POST, 'userid', FILTER_DEFAULT);
