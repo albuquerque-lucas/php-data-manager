@@ -59,15 +59,12 @@ class AuthController
 
     if ($status === false) {
         if (!empty($userName) && !empty($password)) {
-            $user = $this->userModel->getByUserName($userName);
+            $user = $this->userModel->getByNameAndPassword($userName, $password);
             if (!empty($user)) {
                 echo 'Usuario encontrado.';
                 if ($user['user_sessions_id'] === null) {
-                    echo 'Realmente o usuario nao tem nenhuam sessao associada.';
                     $newSession = $this->sessionModel->create();
                     $user = $this->userModel->updateUserSession($newSession['sessions_id'], $user['user_id']);
-                    
-                    echo 'Agora uma sessao ja esta associada ao usuario em questao.';
 
                     SessionManager::createCoockies(
                         $user['user_username'],
@@ -81,6 +78,7 @@ class AuthController
                         $newSession['sessions_token'],
                         $newSession['sessions_serial']
                     );
+
                     header('Location: /profile');
                     return;
                 } else {
@@ -88,6 +86,7 @@ class AuthController
                     exit();
                 }
             } else {
+                // Caso nao tenha sido encontrado um usuario com os dados fornecidos.
                 echo 'Usuario nao encontrado.';
                 exit();
             }

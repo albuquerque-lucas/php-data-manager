@@ -21,20 +21,11 @@ class SessionManager
                 $id = $_COOKIE['sessions_id'];
                 $token = $_COOKIE['sessions_token'];
                 $serial = $_COOKIE['sessions_serial'];
+                $username = $_COOKIE['user_username'];
                 $sessionModel = new Session();
                 $userModel = new User();
                 $session = $sessionModel->getSession($token, $serial);
                 $user = $userModel->getById($id);
-                // var_dump($user);
-                // var_dump($session);
-                // var_dump($_SESSION);
-                // var_dump($_COOKIE);
-                // var_dump(
-                //     $user['user_sessions_id'] == $_COOKIE['sessions_id']
-                // && $session['sessions_token'] == $_COOKIE['sessions_token']
-                // && $session['sessions_serial'] == $_COOKIE['sessions_serial']
-                // );
-                // exit();
                 if ($session['sessions_id'] > 0) {
                 if($user['user_sessions_id'] == $_COOKIE['sessions_id']
                 && $session['sessions_token'] == $_COOKIE['sessions_token']
@@ -48,12 +39,9 @@ class SessionManager
                                 'serial' => $serial,
                             ];
                         } else{
-                            self::createSession(
-                                $_COOKIE['user_username'],
-                                $id,
-                                $token,
-                                $serial
-                            );
+                            // Caso nao sejam encontradas correspondencias entre os dados das tabelas e os dados de sessao.
+                            // Neste caso sao criados novos dados de sessao de acordo com os cookies.
+                            self::createSession($username, $id, $token, $serial);
                             return [
                                 'status' => true,
                                 'token' => $token,
@@ -61,6 +49,7 @@ class SessionManager
                             ];
                         }
                 } else {
+                    // Caso nao sejam encontradas correspondencias entre os dados das tabelas e os cookies.
                     return [
                         'status' => false,
                         'token' => '',
@@ -68,6 +57,7 @@ class SessionManager
                     ];
                 }
             } else {
+                // Caso nao seja encontrada uma sessao valida.
                 return [
                     'status' => false,
                     'token' => '',
@@ -76,7 +66,7 @@ class SessionManager
             }
             
         }
-        var_dump('Nao entrou no primeiro if. Status e igual a false');
+        // Caso os cookies nao estejam setados.
         return [
             'status' => false,
             'token' => '',
