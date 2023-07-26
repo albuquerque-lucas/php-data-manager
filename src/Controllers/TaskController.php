@@ -71,7 +71,7 @@ class TaskController
         $this->Task->update($taskId, $dataToUpdate);
     }
 
-    public function removeRequest(int $id):void
+    public function deleteRequest(int $id):void
     {
         $this->Task->delete($id);
         header('Location: /tasks');
