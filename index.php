@@ -24,6 +24,7 @@ $router->post('/create-user', [$authController, 'createUserRequest']);
 $router->post('/authenticate', [$authController, 'authenticate']);
 $router->post('/logout', [$authController, 'deleteRequest']);
 $router->post('/create-task', [$taskController, 'createRequest']);
+$router->post('/delete-task', [$taskController, 'deleteRequest']);
 
 $router->addNotFoundHandler(function () {
   header('Location: /notFound');
