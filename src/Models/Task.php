@@ -40,6 +40,9 @@ class Task
         $statement->bindValue(':userid', $userId);
         $statement->execute();
         $tasks = $statement->fetchAll(PDO::FETCH_ASSOC);
+        if (!$tasks) {
+            $tasks = [];
+        }
         return $tasks;
 
     }

@@ -22,7 +22,11 @@ class TaskController
         $sessionData = SessionManager::getSessionData();
         list($userData) = $sessionData;
         $tasks = $this->Task->getByUser($userData['user']['user_id']);
+        if (!$tasks) {
+            $tasks = [];
+        }
         $taskView->renderTaskView('tasks.phtml', [
+            'user' => $userData['user'],
             'tasks' => $tasks,
             'status' => $userData['status']
         ]);
