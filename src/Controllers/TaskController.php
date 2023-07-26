@@ -9,7 +9,6 @@ use AlbuquerqueLucas\UserTaskManager\Utils\SessionManager;
 
 class TaskController
 {
-    private TaskView $taskView;
     private Task $Task;
 
     public function __construct()
@@ -22,7 +21,11 @@ class TaskController
         $taskView = new TaskView();
         $sessionData = SessionManager::getSessionData();
         list($userData) = $sessionData;
-        $taskView->renderTaskView('tasks.phtml', []);
+        $tasks = $this->Task->getByUser($userData['user']['user_id']);
+        $taskView->renderTaskView('tasks.phtml', [
+            'tasks' => $tasks,
+            'status' => $userData['status']
+        ]);
     }
 
     public function updateStatusRequest($id)

@@ -30,6 +30,20 @@ class Task
         return $statement->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getByUser($userId)
+    {
+        $query = 'SELECT t.*, ts.task_status_name
+        FROM tasks t
+        JOIN task_status ts ON t.task_status_id = ts.task_status_id
+        WHERE t.task_user_id = :userid';
+        $statement = $this->connection->prepare($query);
+        $statement->bindValue(':userid', $userId);
+        $statement->execute();
+        $tasks = $statement->fetchAll(PDO::FETCH_ASSOC);
+        return $tasks;
+
+    }
+
     public function create(
     $name,
     $description,
