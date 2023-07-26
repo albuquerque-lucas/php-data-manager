@@ -1,14 +1,14 @@
 <?php
 
-namespace LucasAlbuquerque\LoginSystem\Model;
+namespace AlbuquerqueLucas\UserTaskManager\Models;
 
-use LucasAlbuquerque\LoginSystem\Infrastructure\Connection;
-use LucasAlbuquerque\LoginSystem\Utils\DateTimeManager;
+use AlbuquerqueLucas\UserTaskManager\Infrastructure\Connection;
+use AlbuquerqueLucas\UserTaskManager\Utils\DateTimeManager;
 use PDO;
 
 class Task
 {
-    private \PDO $connection;
+    private PDO $connection;
 
     public function __construct()
     {
