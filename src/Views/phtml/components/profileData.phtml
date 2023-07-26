@@ -1,6 +1,5 @@
 <h1 class="text-center my-5">Perfil do Usuário</h1>
         <div class="general my-1">
-          <?php var_dump($user); ?>
           <h3 class="text-center">Conteúdo geral</h3>
         </div>
             <div class="d-flex justify-content-between my-5">
@@ -33,12 +32,12 @@
             <?php if ($user['user_access_level_code'] > 3) { ?>
             <div class="users-count-data mb-5">
               <?php
-                include __DIR__ . '/components/totalUsersData.phtml';
+                include __DIR__ . '/totalUsersData.phtml';
               ?>
             </div>
               <div class="users-list my-5">
                 <?php
-                  include __DIR__ . '/components/usersList.phtml';
+                  include __DIR__ . '/usersList.phtml';
                 ?>
               </div>
               <?php } ?> 

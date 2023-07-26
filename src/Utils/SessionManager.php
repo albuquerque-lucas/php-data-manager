@@ -18,7 +18,6 @@ class SessionManager
             && isset($_COOKIE['sessions_serial'])
             )
             {
-                var_dump($_COOKIE);
                 $id = $_COOKIE['sessions_id'];
                 $token = $_COOKIE['sessions_token'];
                 $serial = $_COOKIE['sessions_serial'];
