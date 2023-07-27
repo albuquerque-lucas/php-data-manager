@@ -21,11 +21,11 @@ class SessionManager
                 $id = $_COOKIE['sessions_id'];
                 $token = $_COOKIE['sessions_token'];
                 $serial = $_COOKIE['sessions_serial'];
-                $username = $_COOKIE['user_username'];
+                $username = $_COOKIE['sessions_username'];
                 $sessionModel = new Session();
                 $userModel = new User();
                 $session = $sessionModel->getSession($token, $serial);
-                $user = $userModel->getById($id);
+                $user = $userModel->getByUserName($username);
                 if ($session['sessions_id'] > 0) {
                 if($user['user_sessions_id'] == $_COOKIE['sessions_id']
                 && $session['sessions_token'] == $_COOKIE['sessions_token']
@@ -88,7 +88,10 @@ class SessionManager
         if(empty($session)){
             $userData = [
                 'status' => false,
-                'user' => 'Guest',
+                'user' => [
+                    'user_username' => 'guest',
+                    'user_id' => 0
+                ],
                 'userAccess' => 'visitor' 
             ];
 

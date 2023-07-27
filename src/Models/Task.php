@@ -1,14 +1,14 @@
 <?php
 
-namespace LucasAlbuquerque\LoginSystem\Model;
+namespace AlbuquerqueLucas\UserTaskManager\Models;
 
-use LucasAlbuquerque\LoginSystem\Infrastructure\Connection;
-use LucasAlbuquerque\LoginSystem\Utils\DateTimeManager;
+use AlbuquerqueLucas\UserTaskManager\Infrastructure\Connection;
+use AlbuquerqueLucas\UserTaskManager\Utils\DateTimeManager;
 use PDO;
 
 class Task
 {
-    private \PDO $connection;
+    private PDO $connection;
 
     public function __construct()
     {
@@ -28,6 +28,24 @@ class Task
         $statement->bindValue(':id', $id);
         $statement->execute();
         return $statement->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getByUser($userId)
+    {
+        $query = 'SELECT t.*, ts.task_status_name
+        FROM tasks t
+        JOIN task_status ts ON t.task_status_id = ts.task_status_id
+        WHERE t.task_user_id = :userid
+        ORDER BY t.task_id';
+        $statement = $this->connection->prepare($query);
+        $statement->bindValue(':userid', $userId);
+        $statement->execute();
+        $tasks = $statement->fetchAll(PDO::FETCH_ASSOC);
+        if (!$tasks) {
+            $tasks = [];
+        }
+        return $tasks;
+
     }
 
     public function create(
@@ -67,6 +85,7 @@ class Task
         $queryUpdate = "UPDATE tasks SET $formattedColumns WHERE task_id = :id";
         $statement = $this->connection->prepare($queryUpdate);
         foreach($data as $key => $value) {
+            var_dump($key, $value);
             $statement->bindValue("$key", $value);
         }
         $statement->bindValue(":id", $id);
@@ -76,8 +95,8 @@ class Task
     public function updateStatus($id)
     {
         $newStatus = $this->setNewStatus($id);
-        $updateQuery = "UPDATE tasks SET task_status_id = :newStatus WHERE task_id = :id";
-        $statement = $this->connection->prepare($updateQuery);
+        $query = "UPDATE tasks SET task_status_id = :newStatus WHERE task_id = :id";
+        $statement = $this->connection->prepare($query);
         $statement->bindValue(':newStatus', $newStatus);
         $statement->bindValue(':id', $id);
         $statement->execute();
@@ -86,9 +105,9 @@ class Task
     public function updateDateTime($id)
     {
         $task = $this->getById($id);
-        $result = $task['task_status_id'];
+        $statusCode = $task['task_status_id'];
     
-        if ($result == 2) {
+        if ($statusCode == 2) {
             $updateQuery = "UPDATE tasks SET task_init_date = :initDate, task_conclusion_date = :conclusionDate WHERE task_id = :id";
             $newInitDate = DateTimeManager::getDateTime();
             $newConclusionDate = '---';
@@ -98,7 +117,7 @@ class Task
             $statement->bindValue(':initDate', $newInitDate);
             $statement->bindValue(':conclusionDate', $newConclusionDate);
             $statement->execute();
-        } elseif ($result == 3) {
+        } elseif ($statusCode == 3) {
             $updateQuery = "UPDATE tasks SET task_conclusion_date = :conclusionDate WHERE task_id = :id";
             $newConclusionDate = DateTimeManager::getDateTime();
     
@@ -139,13 +158,13 @@ class Task
         $statement = $this->connection->prepare($querySelect);
         $statement->bindValue(':id', $taskId);
         $statement->execute();
-        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
         $final = null;
-        if ($result[0]['task_status_id'] === 1){
+        if ($result['task_status_id'] === 1){
             $final = 2;
-        } else if ($result[0]['task_status_id'] === 2) {
+        } else if ($result['task_status_id'] === 2) {
             $final = 3;
-        } else if ($result[0]['task_status_id'] === 3) {
+        } else if ($result['task_status_id'] === 3) {
             $final = 2;
         }
         return $final;

@@ -87,6 +87,8 @@ class AuthController
                             header('Location: /profile');
                             return;
                         } else {
+                            // O usuario ja possui uma sessao associada a conta mas nao consegue ter acesso.
+                            // Neste caso possivelmente sera implementado um procedimento de correcao.
                             $message = "<span>Este usuário já possui uma sessão correspondente.</span>";
                             throw new AuthException($message, 'errorMessage');
                         }

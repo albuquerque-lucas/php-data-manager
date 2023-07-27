@@ -1,0 +1,14 @@
+<?php require __DIR__ . '/components/layout/header.phtml';?>
+
+<div class="container">
+<?php
+    if ($status) {
+        include __DIR__ . '/components/taskList.phtml';
+        } else {
+?>
+
+<?php 
+        include __DIR__ . '/components/mustBeLoggedIn.phtml';
+}?>
+
+<?php require __DIR__ . '/components/layout/footer.phtml';?>

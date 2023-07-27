@@ -10,7 +10,7 @@ class ViewController
   public function renderHomeView()
   {
     $sessionData = SessionManager::getSessionData();
-    list($userData, $managementData) = $sessionData;
+    list($userData) = $sessionData;
     $this->renderHtml('home.phtml', [
       'status' => $userData['status'],
       'user' => $userData['user'],
@@ -21,7 +21,7 @@ class ViewController
   {
     session_start();
     $sessionData = SessionManager::getSessionData();
-    list($userData, $managementData) = $sessionData;
+    list($userData) = $sessionData;
     $message = $_SESSION['errorMessage'];
     $this->renderHtml('login.phtml', [
       'message' => $message,
@@ -43,17 +43,28 @@ class ViewController
       'user' => $userData['user'],
       'userAccess' => $userData['userAccess'],
       'managementData' => $managementData['userCounting'],
-      'allUsers' => $managementData['allUsers'],
+      'allUsers' => $managementData['allUsers']
+    ]);
+  }
+
+  public function renderTaskView()
+  {
+    $sessionData = SessionManager::getSessionData();
+    list($userData) = $sessionData;
+    $this->renderHtml('tasks.phtml', [
+      'status' => $userData['status'],
+      'user' => $userData['user'],
+      'userAccess' => $userData['userAccess']
     ]);
   }
 
   public function renderNotImplemented()
   {
     $sessionData = SessionManager::getSessionData();
-    list($userData, $managementData) = $sessionData;
+    list($userData) = $sessionData;
     $this->renderHtml('notImplemented.phtml', [
       'status' => $userData['status'],
-      'user' => $userData['user'],
+      'user' => $userData['user']
     ]);
   }
 
