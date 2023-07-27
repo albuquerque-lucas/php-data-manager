@@ -100,31 +100,31 @@ class Task
         $statement->execute();
     }
 
-    // public function updateDateTime($id)
-    // {
-    //     $task = $this->getById($id);
-    //     $result = $task['task_status_id'];
+    public function updateDateTime($id)
+    {
+        $task = $this->getById($id);
+        $statusCode = $task['task_status_id'];
     
-    //     if ($result == 2) {
-    //         $updateQuery = "UPDATE tasks SET task_init_date = :initDate, task_conclusion_date = :conclusionDate WHERE task_id = :id";
-    //         $newInitDate = DateTimeManager::getDateTime();
-    //         $newConclusionDate = '---';
+        if ($statusCode == 2) {
+            $updateQuery = "UPDATE tasks SET task_init_date = :initDate, task_conclusion_date = :conclusionDate WHERE task_id = :id";
+            $newInitDate = DateTimeManager::getDateTime();
+            $newConclusionDate = '---';
     
-    //         $statement = $this->connection->prepare($updateQuery);
-    //         $statement->bindValue(':id', $id);
-    //         $statement->bindValue(':initDate', $newInitDate);
-    //         $statement->bindValue(':conclusionDate', $newConclusionDate);
-    //         $statement->execute();
-    //     } elseif ($result == 3) {
-    //         $updateQuery = "UPDATE tasks SET task_conclusion_date = :conclusionDate WHERE task_id = :id";
-    //         $newConclusionDate = DateTimeManager::getDateTime();
+            $statement = $this->connection->prepare($updateQuery);
+            $statement->bindValue(':id', $id);
+            $statement->bindValue(':initDate', $newInitDate);
+            $statement->bindValue(':conclusionDate', $newConclusionDate);
+            $statement->execute();
+        } elseif ($statusCode == 3) {
+            $updateQuery = "UPDATE tasks SET task_conclusion_date = :conclusionDate WHERE task_id = :id";
+            $newConclusionDate = DateTimeManager::getDateTime();
     
-    //         $statement = $this->connection->prepare($updateQuery);
-    //         $statement->bindValue(':id', $id);
-    //         $statement->bindValue(':conclusionDate', $newConclusionDate);
-    //         $statement->execute();
-    //     }
-    // }
+            $statement = $this->connection->prepare($updateQuery);
+            $statement->bindValue(':id', $id);
+            $statement->bindValue(':conclusionDate', $newConclusionDate);
+            $statement->execute();
+        }
+    }
 
     public function getTaskStatus($taskId)
     {
