@@ -36,35 +36,35 @@
 
                 <tr>
                     <td class="input-cell text-center">
-                        <!-- <span class="cell-value" data-id="<?= $task['task_id'] ?>">
+                        <span class="task-text-data" data-id="<?= $task['task_id'] ?>">
                             <?= $task['task_name'] ?>
-                        </span> -->
-                        <form action="/update-task" method="post" class="text-form">
+                        </span>
+                        <form action="/update-task" method="post" class="text-form d-none">
                             <input type="hidden" name="task_id" value=<?= $task['task_id']; ?>>
                             <input type="hidden" name="column" value='task_name'>
                             <input
                             type="text"
-                            class="form-control input-hidden"
+                            class="form-control"
                             value="<?= $task['task_name'] ?>"
                             name='text'
                             >
-                            <button>Enviar</button>
+                            <button class='mt-2 btn btn-sm btn-primary'>Enviar</button>
                         </form>
                     </td>
                     <td class="input-cell">
-                        <!-- <span class="cell-value" data-id="<?= $task['task_id']; ?>">
+                        <span class="task-text-data" data-id="<?= $task['task_id']; ?>">
                             <?= $task['task_description'] ?>
-                        </span> -->
-                        <form action="/update-task" method="post" class="text-form">
+                        </span>
+                        <form action="/update-task" method="post" class="text-form d-flex flex-column align-items-center d-none">
                             <input type="hidden" name="task_id" value=<?= $task['task_id']; ?>>
                             <input type="hidden" name="column" value='task_description'>
                             <input
                             type="text"
-                            class="form-control input-hidden"
+                            class="form-control"
                             value="<?= $task['task_description'] ?>"
                             name='text'
                             >
-                            <button>Enviar</button>
+                            <button class='mt-2 btn btn-sm btn-primary'>Enviar</button>
                         </form>
                     </td>
                     <td class="text-center"><?= $task['task_creation_date'] ?></td>
