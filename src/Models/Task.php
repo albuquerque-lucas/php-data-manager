@@ -93,38 +93,38 @@ class Task
     public function updateStatus($id)
     {
         $newStatus = $this->setNewStatus($id);
-        $updateQuery = "UPDATE tasks SET task_status_id = :newStatus WHERE task_id = :id";
-        $statement = $this->connection->prepare($updateQuery);
+        $query = "UPDATE tasks SET task_status_id = :newStatus WHERE task_id = :id";
+        $statement = $this->connection->prepare($query);
         $statement->bindValue(':newStatus', $newStatus);
         $statement->bindValue(':id', $id);
         $statement->execute();
     }
 
-    public function updateDateTime($id)
-    {
-        $task = $this->getById($id);
-        $result = $task['task_status_id'];
+    // public function updateDateTime($id)
+    // {
+    //     $task = $this->getById($id);
+    //     $result = $task['task_status_id'];
     
-        if ($result == 2) {
-            $updateQuery = "UPDATE tasks SET task_init_date = :initDate, task_conclusion_date = :conclusionDate WHERE task_id = :id";
-            $newInitDate = DateTimeManager::getDateTime();
-            $newConclusionDate = '---';
+    //     if ($result == 2) {
+    //         $updateQuery = "UPDATE tasks SET task_init_date = :initDate, task_conclusion_date = :conclusionDate WHERE task_id = :id";
+    //         $newInitDate = DateTimeManager::getDateTime();
+    //         $newConclusionDate = '---';
     
-            $statement = $this->connection->prepare($updateQuery);
-            $statement->bindValue(':id', $id);
-            $statement->bindValue(':initDate', $newInitDate);
-            $statement->bindValue(':conclusionDate', $newConclusionDate);
-            $statement->execute();
-        } elseif ($result == 3) {
-            $updateQuery = "UPDATE tasks SET task_conclusion_date = :conclusionDate WHERE task_id = :id";
-            $newConclusionDate = DateTimeManager::getDateTime();
+    //         $statement = $this->connection->prepare($updateQuery);
+    //         $statement->bindValue(':id', $id);
+    //         $statement->bindValue(':initDate', $newInitDate);
+    //         $statement->bindValue(':conclusionDate', $newConclusionDate);
+    //         $statement->execute();
+    //     } elseif ($result == 3) {
+    //         $updateQuery = "UPDATE tasks SET task_conclusion_date = :conclusionDate WHERE task_id = :id";
+    //         $newConclusionDate = DateTimeManager::getDateTime();
     
-            $statement = $this->connection->prepare($updateQuery);
-            $statement->bindValue(':id', $id);
-            $statement->bindValue(':conclusionDate', $newConclusionDate);
-            $statement->execute();
-        }
-    }
+    //         $statement = $this->connection->prepare($updateQuery);
+    //         $statement->bindValue(':id', $id);
+    //         $statement->bindValue(':conclusionDate', $newConclusionDate);
+    //         $statement->execute();
+    //     }
+    // }
 
     public function getTaskStatus($taskId)
     {
@@ -156,13 +156,13 @@ class Task
         $statement = $this->connection->prepare($querySelect);
         $statement->bindValue(':id', $taskId);
         $statement->execute();
-        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+        $result = $statement->fetch(PDO::FETCH_ASSOC);
         $final = null;
-        if ($result[0]['task_status_id'] === 1){
+        if ($result['task_status_id'] === 1){
             $final = 2;
-        } else if ($result[0]['task_status_id'] === 2) {
+        } else if ($result['task_status_id'] === 2) {
             $final = 3;
-        } else if ($result[0]['task_status_id'] === 3) {
+        } else if ($result['task_status_id'] === 3) {
             $final = 2;
         }
         return $final;

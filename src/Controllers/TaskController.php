@@ -32,10 +32,11 @@ class TaskController
         ]);
     }
 
-    public function updateStatusRequest($id)
+    public function updateStatusRequest()
     {
+        $id = intval($_POST['status-zero']);
         $this->Task->updateStatus($id);
-        $this->Task->updateDateTime($id);
+        // $this->Task->updateDateTime($id);
         header('Location: /tasks');
     }
 
