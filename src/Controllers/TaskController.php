@@ -62,14 +62,15 @@ class TaskController
         header('Location: /tasks');
     }
 
-    public function updateRequest($data)
+    public function updateRequest()
     {
-
-        $taskId = $data['taskId'];
-        $text = $data['text'];
-        $column = $data['column'];
+        var_dump($_POST);
+        $taskId = $_POST['task_id'];
+        $text = $_POST['text'];
+        $column = $_POST['column'];
         $dataToUpdate = [$column => $text];
         $this->Task->update($taskId, $dataToUpdate);
+        header('Location: /tasks');
     }
 
     public function deleteRequest():void

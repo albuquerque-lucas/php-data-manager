@@ -45,7 +45,7 @@ export default class CellEditController {
       text,
       column,
     };
-
+    console.log(data);
     const options = {
       method: 'POST',
       headers: {

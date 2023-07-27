@@ -3,8 +3,8 @@ import CellEditController from "./CellEditController.js";
 
 export default class AppController {
   constructor() {
+    console.log('Inicia controlador App');
     this.checkboxFormController = new CheckboxFormController();
     this.cellEditController = new CellEditController();
-    console.log('Inicia controlador App');
   }
 }

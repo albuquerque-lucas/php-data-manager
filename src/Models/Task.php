@@ -84,6 +84,7 @@ class Task
         $queryUpdate = "UPDATE tasks SET $formattedColumns WHERE task_id = :id";
         $statement = $this->connection->prepare($queryUpdate);
         foreach($data as $key => $value) {
+            var_dump($key, $value);
             $statement->bindValue("$key", $value);
         }
         $statement->bindValue(":id", $id);
