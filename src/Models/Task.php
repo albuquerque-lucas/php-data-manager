@@ -35,7 +35,8 @@ class Task
         $query = 'SELECT t.*, ts.task_status_name
         FROM tasks t
         JOIN task_status ts ON t.task_status_id = ts.task_status_id
-        WHERE t.task_user_id = :userid';
+        WHERE t.task_user_id = :userid
+        ORDER BY t.task_id';
         $statement = $this->connection->prepare($query);
         $statement->bindValue(':userid', $userId);
         $statement->execute();
