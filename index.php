@@ -14,7 +14,7 @@ $taskController = new TaskController();
 
 $router->get('/', [$viewController, 'renderHomeView']);
 $router->get('/notFound', [$viewController, 'renderNotFoundView']);
-$router->get('/login', [$viewController, 'renderLoginView']);
+$router->get('/login', [$authController, 'renderLoginView']);
 $router->get('/register', [$viewController, 'renderRegisterView']);
 $router->get('/tasks', [$viewController, 'renderNotImplemented']);
 $router->get('/messages', [$viewController, 'renderNotImplemented']);

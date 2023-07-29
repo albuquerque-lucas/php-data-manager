@@ -6,6 +6,7 @@ use AlbuquerqueLucas\UserTaskManager\Exceptions\AuthException;
 use AlbuquerqueLucas\UserTaskManager\Models\Session;
 use AlbuquerqueLucas\UserTaskManager\Models\User;
 use AlbuquerqueLucas\UserTaskManager\Utils\SessionManager;
+use AlbuquerqueLucas\UserTaskManager\Views\LoginView;
 
 class AuthController
 {
@@ -16,6 +17,19 @@ class AuthController
     {
         $this->sessionModel = new Session();
         $this->userModel = new User();
+    }
+
+    public function renderLoginView()
+    {
+        session_start();
+        $loginView = new LoginView();
+        $sessionData = SessionManager::getSessionData();
+        list($userData) = $sessionData;
+        $message = $_SESSION['errorMessage'];
+        $loginView->renderHTML('login.phtml', [
+            'message' => $message,
+            'status' => $userData['status']
+        ]);
     }
 
     public function createUserRequest()

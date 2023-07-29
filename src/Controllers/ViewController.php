@@ -17,18 +17,6 @@ class ViewController
     ]);
   }
 
-  public function renderLoginView()
-  {
-    session_start();
-    $sessionData = SessionManager::getSessionData();
-    list($userData) = $sessionData;
-    $message = $_SESSION['errorMessage'];
-    $this->renderHtml('login.phtml', [
-      'message' => $message,
-      'status' => $userData['status']
-    ]);
-  }
-
   public function renderRegisterView()
   {
     $this->renderHtml('register.phtml', []);
