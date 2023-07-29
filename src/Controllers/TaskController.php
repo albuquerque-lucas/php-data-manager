@@ -16,7 +16,7 @@ class TaskController
         $this->Task = new Task();
     }
 
-    public function renderTaskView()
+    public function renderTasksRequest()
     {
         $taskView = new TaskView();
         $sessionData = SessionManager::getSessionData();
