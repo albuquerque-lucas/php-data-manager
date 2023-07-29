@@ -6,6 +6,9 @@ use AlbuquerqueLucas\UserTaskManager\Exceptions\AuthException;
 use AlbuquerqueLucas\UserTaskManager\Models\Session;
 use AlbuquerqueLucas\UserTaskManager\Models\User;
 use AlbuquerqueLucas\UserTaskManager\Utils\SessionManager;
+use AlbuquerqueLucas\UserTaskManager\Views\LoginView;
+use AlbuquerqueLucas\UserTaskManager\Views\ProfileView;
+use AlbuquerqueLucas\UserTaskManager\Views\RegisterView;
 
 class AuthController
 {
@@ -16,6 +19,43 @@ class AuthController
     {
         $this->sessionModel = new Session();
         $this->userModel = new User();
+    }
+
+    public function renderLoginRequest()
+    {
+        session_start();
+        $loginView = new LoginView();
+        $sessionData = SessionManager::getSessionData();
+        list($userData) = $sessionData;
+        $message = $_SESSION['errorMessage'];
+        $loginView->renderHTML('login.phtml', [
+            'message' => $message,
+            'status' => $userData['status']
+        ]);
+    }
+
+    public function renderRegisterRequest()
+    {
+        $registerView = new RegisterView();
+        $sessionData = SessionManager::getSessionData();
+        list($userData) = $sessionData;
+        $registerView->renderHtml('register.phtml', [
+            'status' => $userData['status'],
+        ]);
+    }
+
+    public function renderProfileRequest()
+    {
+        $profileView = new ProfileView();
+        $sessionData = SessionManager::getSessionData();
+        list($userData, $managementData) = $sessionData;
+        $profileView->renderHtml('profile.phtml', [
+        'status' => $userData['status'],
+        'user' => $userData['user'],
+        'userAccess' => $userData['userAccess'],
+        'managementData' => $managementData['userCounting'],
+        'allUsers' => $managementData['allUsers']
+        ]);
     }
 
     public function createUserRequest()
