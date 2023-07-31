@@ -9,7 +9,7 @@ use AlbuquerqueLucas\UserTaskManager\Controllers\TaskController;
 require __DIR__ . '/vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+$dotenv->safeLoad();
 
 $router = new Router();
 $errorController = new ErrorController();
