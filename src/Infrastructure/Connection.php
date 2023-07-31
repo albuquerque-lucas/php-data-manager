@@ -11,7 +11,7 @@ class Connection
     {
         $hostName = 'containers-us-west-89.railway.app';
         $port = '7241';
-        $dbName = 'task_manager';
+        $dbName = 'railway';
         $userName = 'root';
         $password = 'FUdfoWuE5r1DJxJTBwhQ';
         try {
