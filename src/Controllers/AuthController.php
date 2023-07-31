@@ -28,7 +28,7 @@ class AuthController
         $sessionData = SessionManager::getSessionData();
         list($userData) = $sessionData;
         $message = $_SESSION['errorMessage'];
-        $loginView->renderHTML('login.phtml', [
+        $loginView->renderLoginView('login.phtml', [
             'message' => $message,
             'status' => $userData['status']
         ]);
@@ -39,7 +39,7 @@ class AuthController
         $registerView = new RegisterView();
         $sessionData = SessionManager::getSessionData();
         list($userData) = $sessionData;
-        $registerView->renderHtml('register.phtml', [
+        $registerView->renderRegisterView('register.phtml', [
             'status' => $userData['status'],
         ]);
     }
@@ -49,7 +49,7 @@ class AuthController
         $profileView = new ProfileView();
         $sessionData = SessionManager::getSessionData();
         list($userData, $managementData) = $sessionData;
-        $profileView->renderHtml('profile.phtml', [
+        $profileView->renderProfileView('profile.phtml', [
         'status' => $userData['status'],
         'user' => $userData['user'],
         'userAccess' => $userData['userAccess'],

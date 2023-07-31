@@ -9,12 +9,13 @@ class Connection
 {
     public static function connect()
     {
-        $hostName = 'localhost';
+        $hostName = 'containers-us-west-89.railway.app';
+        $port = '7241';
         $dbName = 'task_manager';
         $userName = 'root';
-        $password = 'mamao123mamao';
+        $password = 'FUdfoWuE5r1DJxJTBwhQ';
         try {
-            return new PDO("mysql:host=$hostName;dbname=$dbName", $userName, $password);
+            return new PDO("mysql:host=$hostName;port=$port;dbname=$dbName", $userName, $password);
         } catch (PDOException $PDOException) {
             echo "Falha na conexão: " . $PDOException->getMessage() . "<br/>";
             echo "Arquivo: " . $PDOException->getFile() . "<br/>";

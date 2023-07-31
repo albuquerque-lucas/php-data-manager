@@ -13,7 +13,7 @@ class HomeController
       $homeView = new HomeView();
       $sessionData = SessionManager::getSessionData();
       list($userData) = $sessionData;
-      $homeView->renderHtml('home.phtml', [
+      $homeView->renderHomeView('home.phtml', [
         'status' => $userData['status'],
         'user' => $userData['user'],
       ]);
