@@ -7,10 +7,12 @@ mode = "copy"
 # Definir o diretório raiz do servidor Nginx
 root = "/var/www/html"
 
-# Configuração para a reescrita
-location / {
-    try_files $uri $uri/ /index.php$is_args$args;
-}
-
 # Configuração para o arquivo index.php como DirectoryIndex
-index index.php;
+index = "index.php"
+
+# Configuração para a reescrita
+http_server_block = '''
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+'''
