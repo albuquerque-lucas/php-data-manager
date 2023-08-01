@@ -4,15 +4,63 @@ destination = "/var/www/html"
 mode = "copy"
 
 [nginx]
-# Definir o diretório raiz do servidor Nginx
 root = "/var/www/html"
-
-# Configuração para o arquivo index.php como DirectoryIndex
 index = "index.php"
 
-# Configuração para a reescrita
 http_server_block = '''
     location / {
-        try_files $uri $uri/ /index.php?$query_string;
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /notFound {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /login {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /register {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /messages {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /profile {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /tasks {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /create-user {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /authenticate {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /logout {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /create-task {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /delete-task {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /update-task {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location /update-task-status {
+        try_files $uri $uri/ /index.php?$args;
     }
 '''
