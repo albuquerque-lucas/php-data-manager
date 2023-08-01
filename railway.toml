@@ -1,0 +1,66 @@
+[[mounts]]
+source = "./"
+destination = "/var/www/html"
+mode = "copy"
+
+[nginx]
+root = "/var/www/html"
+index = "index.php"
+
+http_server_block = '''
+    location / {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /notFound {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /login {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /register {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /messages {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /profile {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /tasks {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /create-user {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /authenticate {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /logout {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /create-task {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /delete-task {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /update-task {
+        try_files $uri $uri/ /index.php;
+    }
+
+    location /update-task-status {
+        try_files $uri $uri/ /index.php;
+    }
+'''
