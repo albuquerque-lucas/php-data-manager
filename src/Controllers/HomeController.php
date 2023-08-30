@@ -10,6 +10,8 @@ class HomeController
 
     public function renderHomeRequest()
     {
+      var_dump($_SERVER);
+      exit();
       $homeView = new HomeView();
       $sessionData = SessionManager::getSessionData();
       list($userData) = $sessionData;
