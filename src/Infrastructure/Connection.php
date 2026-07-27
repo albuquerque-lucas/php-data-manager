@@ -17,8 +17,7 @@ class Connection
         try {
             return new PDO("mysql:host=$hostName;port=$port;dbname=$dbName", $userName, $password);
         } catch (PDOException $PDOException) {
-            echo "Falha na conexão: " . $PDOException->getMessage() . "<br/>";
-            echo "Arquivo: " . $PDOException->getFile() . "<br/>";
+            echo 'Falha na conexão com o banco de dados.';
         }
     }
 }
